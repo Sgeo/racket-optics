@@ -13,7 +13,7 @@
     (cons (getter o) o))
   (define (lifted-setter consed)
     (setter (car consed) (cdr consed)))
-  (compose1 (dimap-curried lifted-getter lifted-setter) strong-first)) ; Data flows from lifted-getter -> strong-first -> lifted-setter
+  (compose1 (dimap-curried lifted-getter lifted-setter) strong-first)) ; Profunctor flows from lifted-getter -> strong-first -> lifted-setter
 
 (define (o-getter optic)
   (forget-value (optic (forget identity))))
