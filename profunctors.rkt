@@ -5,7 +5,10 @@
 
 (provide (struct-out func)
          (struct-out forget)
-         gen:profunctor)
+         gen:profunctor
+         dimap
+         dimap-curried
+         strong-first)
 
 (module+ test
   (require rackunit))

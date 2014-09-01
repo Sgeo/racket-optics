@@ -37,3 +37,6 @@ Icon
 
 profunctors.bak
 profunctors.2
+*.bak
+*.dep
+*.zo
