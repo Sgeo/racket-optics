@@ -13,6 +13,9 @@
 (define-generics profunctor
   (dimap neg profunctor pos))
 
+(define ((dimap-curried neg pos) profunctor)
+  (dimap neg profunctor pos))
+
 (struct func (value)
   #:methods gen:profunctor
   [(define (dimap neg profunctor pos)
@@ -26,4 +29,4 @@
 (struct forget (value)
   #:methods gen:profunctor
   [(define (dimap neg profunctor _)
-     (compose1 (forget-value profunctor) neg))])
+     (forget (compose1 (forget-value profunctor) neg)))])
