@@ -47,4 +47,4 @@
      (forget (compose1 (forget-value profunctor) neg)))]
   #:methods gen:strong
   [(define (strong-first strong)
-     (forget (compose1 car (forget-value strong))))])
+     (forget (compose1 (forget-value strong) car)))])
