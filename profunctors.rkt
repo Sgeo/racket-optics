@@ -48,3 +48,11 @@
   #:methods gen:strong
   [(define (strong-first strong)
      (forget (compose1 (forget-value strong) car)))])
+
+(struct exchange (value)
+  #:methods gen:profunctor
+  [(define (dimap neg profunctor pos)
+     (exchange
+      (lambda (driver) ; profunctor that this new iso will manipulate
+       ((exchange-value profunctor) 
+        (dimap pos driver neg)))))]) ; Force this dimap to come before the rest defined so far in the exchange
