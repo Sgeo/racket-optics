@@ -8,13 +8,17 @@
          gen:profunctor
          dimap
          dimap-curried
-         strong-first)
+         strong-first
+         exchange
+         exchange-value)
 
 (module+ test
   (require rackunit))
 
 (define-generics profunctor
-  (dimap neg profunctor pos))
+  (dimap- neg profunctor pos))
+
+(define dimap dimap-) ; Allow dimap definitions to use other dimaps without accidental shadowing
 
 (define ((dimap-curried neg pos) profunctor)
   (dimap neg profunctor pos))
@@ -24,7 +28,7 @@
 
 (struct func (value)
   #:methods gen:profunctor
-  [(define (dimap neg profunctor pos)
+  [(define (dimap- neg profunctor pos)
      (func (compose1 pos (func-value profunctor) neg)))]
   #:methods gen:strong
   [(define (strong-first strong)
@@ -43,7 +47,7 @@
 
 (struct forget (value)
   #:methods gen:profunctor
-  [(define (dimap neg profunctor _)
+  [(define (dimap- neg profunctor _)
      (forget (compose1 (forget-value profunctor) neg)))]
   #:methods gen:strong
   [(define (strong-first strong)
@@ -51,7 +55,7 @@
 
 (struct exchange (value)
   #:methods gen:profunctor
-  [(define (dimap neg profunctor pos)
+  [(define (dimap- neg profunctor pos)
      (exchange
       (lambda (driver) ; profunctor that this new iso will manipulate
        ((exchange-value profunctor) 
