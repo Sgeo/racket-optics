@@ -12,13 +12,13 @@
   (define (lifted-getter o)
     (cons (getter o) o))
   (define (lifted-setter consed)
-    (setter (car consed) (cdr consed)))
+    (setter (cdr consed) (car consed))) ; Pass original object (cdr) as first argument
   (compose1 (dimap-curried lifted-getter lifted-setter) strong-first))
 
 (define (o-getter optic)
   (forget-value (optic (forget identity))))
 
 (module+ test
-  (define car-o (lens car (lambda (new o) (cons new (cdr o)))))
+  (define car-o (lens car (lambda (o new) (cons new (cdr o)))))
   (check-equal? ((o-getter (compose1 car-o car-o)) (cons (cons 3 5) 6))
                 3))
