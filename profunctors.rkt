@@ -90,11 +90,16 @@
 
 (struct forget-stream (value) ; a -> [r]
   #:methods gen:profunctor
-  [(define (dimap neg profunctor _)
+  [(define (dimap- neg profunctor _)
      (forget-stream (compose1 (forget-stream-value profunctor) neg)))]
   #:methods gen:strong
-  [(define (strong-first strong)
-     (forget-stream (compose1 (forget-stream-value strong) car)))])
+  [(define (strong-first- strong)
+     (forget-stream (compose1 (forget-stream-value strong) car)))]
+  #:methods gen:redundant
+  [(define (listy- redundant) ; (a -> [r]) -> [a] -> [r]
+     (forget-stream
+      (lambda (as)
+        (stream-bind as (forget-stream-value redundant)))))])
 
 (struct exchange (value)
   #:methods gen:profunctor
