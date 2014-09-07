@@ -66,13 +66,35 @@
   [(define (strong-first strong)
      (forget (compose1 (forget-value strong) car)))]
   #:methods gen:redundant
-  [(define (listy redundant)
+  [(define (listy- redundant)
    (raise-argument-error "Cannot get from a multilens"))])
+
+(define (stream-join stream)
+  (if (stream-empty? stream)
+      stream
+      (let ([first-stream (stream-first stream)]
+            [rest-stream (stream-rest stream)])
+        (if (stream-empty? first-stream)
+            (stream-join rest-stream)
+            (stream-cons
+             (stream-first first-stream)
+             (stream-join (stream-cons (stream-rest first-stream) rest-stream)))))))
+
+(module+ test
+  (check-equal?
+   (stream->list (stream-join (stream (stream 1 2) (stream) (stream 3))))
+   (list 1 2 3)))
+
+(define (stream-bind stream f)
+  (stream-join (stream-map f stream)))
 
 (struct forget-stream (value) ; a -> [r]
   #:methods gen:profunctor
   [(define (dimap neg profunctor _)
-     (forget-stream (compose1 (forget-stream-value profunctor) neg)))])
+     (forget-stream (compose1 (forget-stream-value profunctor) neg)))]
+  #:methods gen:strong
+  [(define (strong-first strong)
+     (forget-stream (compose1 (forget-stream-value strong) car)))])
 
 (struct exchange (value)
   #:methods gen:profunctor
