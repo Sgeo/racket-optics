@@ -1,7 +1,8 @@
 #lang racket/base
 
 (require racket/generic
-         racket/function)
+         racket/function
+         racket/stream)
 
 (provide (struct-out func)
          (struct-out forget)
@@ -24,18 +25,30 @@
   (dimap neg profunctor pos))
 
 (define-generics strong
-  (strong-first strong)) ; strong-first :: p a b -> p (a, o) (b, o)
+  (strong-first- strong)) ; strong-first :: p a b -> p (a, o) (b, o)
+
+(define strong-first strong-first-)
+
+(define-generics redundant
+  (listy- redundant)) ; listy :: p a b -> p [a] [b]
+
+(define listy listy-)
 
 (struct func (value)
   #:methods gen:profunctor
   [(define (dimap- neg profunctor pos)
      (func (compose1 pos (func-value profunctor) neg)))]
   #:methods gen:strong
-  [(define (strong-first strong)
+  [(define (strong-first- strong)
      (func (lambda (consed)
              (cons
               ((func-value strong) (car consed))
-              (cdr consed)))))])
+              (cdr consed)))))]
+  #:methods gen:redundant
+  [(define (listy- redundant)
+     (func
+      (lambda (incoming-stream)
+        (stream-map (func-value redundant) incoming-stream))))])
 
 (module+ test
   (check-eq?
@@ -51,7 +64,15 @@
      (forget (compose1 (forget-value profunctor) neg)))]
   #:methods gen:strong
   [(define (strong-first strong)
-     (forget (compose1 (forget-value strong) car)))])
+     (forget (compose1 (forget-value strong) car)))]
+  #:methods gen:redundant
+  [(define (listy redundant)
+   (raise-argument-error "Cannot get from a multilens"))])
+
+(struct forget-stream (value) ; a -> [r]
+  #:methods gen:profunctor
+  [(define (dimap neg profunctor _)
+     (forget-stream (compose1 (forget-stream-value profunctor) neg)))])
 
 (struct exchange (value)
   #:methods gen:profunctor
